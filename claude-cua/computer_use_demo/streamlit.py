@@ -3,6 +3,7 @@ Entrypoint for streamlit, see https://docs.streamlit.io/
 """
 
 import requests
+import json
 
 import asyncio
 import base64
@@ -248,9 +249,9 @@ async def main():
         "Type a message to send to Claude to control the computer..."
     )
     
-    resp = requests.get("http://localhost:8085/prompt").json()
-    if resp["success"]:
-        new_message = resp["prompt"]
+    resp = requests.get("http://localhost:8085/prompt").json() # NEW
+    if resp["success"]: # NEW
+        new_message = resp["prompt"] # NEW
 
     with chat:
         # render past chats
@@ -322,6 +323,9 @@ async def main():
                 else None,
                 token_efficient_tools_beta=st.session_state.token_efficient_tools_beta,
             )
+            requests.post("http://localhost:8085/logs", json={ # NEW
+                "raw_data": json.dumps(st.session_state.messages) # NEW
+            }) # NEW
 
 
 def maybe_add_interruption_blocks():
