@@ -2,6 +2,8 @@
 Entrypoint for streamlit, see https://docs.streamlit.io/
 """
 
+import requests
+
 import asyncio
 import base64
 import os
@@ -245,6 +247,10 @@ async def main():
     new_message = st.chat_input(
         "Type a message to send to Claude to control the computer..."
     )
+    
+    resp = requests.get("http://localhost:8085/prompt").json()
+    if resp["success"]:
+        new_message = resp["prompt"]
 
     with chat:
         # render past chats
