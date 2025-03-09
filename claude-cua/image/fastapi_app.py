@@ -7,9 +7,11 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import subprocess
 import os
+import base64
 
 # Initialize the FastAPI app
 app = FastAPI()
+ENV = dict(os.environ, DISPLAY=":1")
 
 # In-memory storage
 prompt = None
@@ -26,7 +28,7 @@ class LogInput(BaseModel):
 class InstructionInput(BaseModel):
     instruction_type: str
     path: Optional[str] = None
-    data: Optional[str] = None
+    b64_data: Optional[str] = None
     url: Optional[str] = None
 
 class EnvironmentInput(BaseModel):
@@ -100,13 +102,17 @@ def setup_environment(item: EnvironmentInput):
                 case "FILE_CREATE":
                     if not instruction.path:
                         raise Exception(f"Missing instruction.path field")
-                    if not instruction.data:
-                        raise Exception(f"Missing instruction.data field")
-                    _file_create(instruction.path, instruction.data)
+                    if not instruction.b64_data:
+                        raise Exception(f"Missing instruction.b64_data field")
+                    _file_create(instruction.path, instruction.b64_data)
                 case "FIREFOX_OPEN":
                     if not instruction.url:
                         raise Exception(f"Missing instruction.url field")
                     _firefox_open(instruction.url)
+                case "LIBREOFFICE_CALC_OPEN":
+                    if not instruction.path:
+                        raise Exception(f"Missing instruction.path field")
+                    _libreoffice_calc_open(instruction.path)
                 case "CLOSE_ALL":
                     _close_all()
                 case _:
@@ -115,13 +121,20 @@ def setup_environment(item: EnvironmentInput):
             return {"success": False, "instruction_id": i, "error": str(e)}
     return {"success": True}
 
-def _file_create(path: str, data: str):
+def _file_create(path: str, b64_data: str):
+    data = base64.b64decode(b64_data)
     os.makedirs(os.path.dirname(path), exist_ok=True) # Create parent directories if they don't exist
-    with open(path, "w") as file:
+    with open(path, "wb") as file:
         file.write(data)
 
 def _firefox_open(url: str):
-    subprocess.Popen(["firefox-esr", url], env=dict(os.environ, DISPLAY=":1")) # Launch Firefox asynchronously
+    subprocess.Popen(["firefox-esr", url], env=ENV) # Launch Firefox asynchronously
+
+def _libreoffice_calc_open(path: str):
+    subprocess.Popen(["libreoffice", "--calc", '--infilter="CSV:44,34,UTF8"', path], env=ENV) # Launch LibreOffice Calc asynchronously
 
 def _close_all():
-    subprocess.run(["pkill", "firefox"])  # Close all Firefox windows
+    result = subprocess.run(["xdotool", "search", "--onlyvisible", "--name", "."], env=ENV, capture_output=True, text=True)
+    window_ids = result.stdout.splitlines()[3:] # Don't kill the first 3 window ids (killing them breaks the GUI)
+    for win_id in window_ids:
+        subprocess.run(["xdotool", "windowkill", win_id], env=ENV)
