@@ -4,6 +4,7 @@ Entrypoint for streamlit, see https://docs.streamlit.io/
 
 import requests
 import json
+import logging
 
 import asyncio
 import base64
@@ -252,6 +253,7 @@ async def main():
     resp = requests.get("http://localhost:8085/prompt").json() # NEW
     if resp["success"]: # NEW
         new_message = resp["prompt"] # NEW
+        fastapi_log_id = resp["log_id"] # NEW
 
     with chat:
         # render past chats
@@ -298,6 +300,8 @@ async def main():
             # we don't have a user message to respond to, exit early
             return
 
+        logging.basicConfig(filename="/tmp/claude-cua.log", level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s") # NEW
+        #logging.debug(vars(st.session_state)) # NEW
         with track_sampling_loop():
             # run the agent sampling loop with the newest message
             st.session_state.messages = await sampling_loop(
@@ -324,6 +328,7 @@ async def main():
                 token_efficient_tools_beta=st.session_state.token_efficient_tools_beta,
             )
             requests.post("http://localhost:8085/logs", json={ # NEW
+                "log_id": fastapi_log_id, # NEW
                 "raw_data": json.dumps(st.session_state.messages) # NEW
             }) # NEW
 

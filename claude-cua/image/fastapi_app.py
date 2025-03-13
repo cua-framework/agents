@@ -16,7 +16,8 @@ ENV = dict(os.environ, DISPLAY=":1")
 # In-memory storage
 prompt = None
 state = 0 # 0: Waiting for Prompt, 1: Waiting for Streamlit, 2: Waiting for Claude
-logs = []
+next_log_id = 0
+logs = {} # Log ID -> Log
 
 # Pydantic model for request body validation
 class PromptInput(BaseModel):
@@ -24,6 +25,7 @@ class PromptInput(BaseModel):
 
 class LogInput(BaseModel):
     raw_data: str
+    log_id: int
 
 class InstructionInput(BaseModel):
     instruction_type: str
@@ -42,7 +44,7 @@ def read_root():
 # Set Prompt
 @app.post("/prompt")
 def set_prompt(item: PromptInput): # TODO: Test concurrency
-    global prompt, state
+    global prompt, state, next_log_id
     if state == 0:
         state = 1
         prompt = item.prompt
@@ -58,18 +60,20 @@ def set_prompt(item: PromptInput): # TODO: Test concurrency
 
         # Wait for JavaScript to load (adjust if necessary)
         driver.implicitly_wait(5)  # seconds
+        
+        next_log_id += 1
 
-        return {"success": True}
+        return {"success": True, "log_id": next_log_id}
     return {"success": False, "state": state}
 
 # Get Prompt
 @app.get("/prompt")
 def get_prompt(): # INTERNAL USE ONLY
-    global prompt, state
+    global prompt, state, next_log_id
     if state != 1:
         return {"success": False, "state": state}
     state = 2
-    resp = {"success": True, "prompt": prompt}
+    resp = {"success": True, "prompt": prompt, "log_id": next_log_id}
     return resp
 
 # Add Log
@@ -78,19 +82,23 @@ def add_log(item: LogInput): # INTERNAL USE ONLY
     global prompt, state, logs
     if state != 2:
         return {"success": False, "state": state}
-    logs.append({
+    logs[item.log_id] = {
         "prompt": prompt,
         "chat": json.loads(item.raw_data)
-    })
+    }
     prompt = None
     state = 0
     return {"success": True}
     
 # Get Logs
 @app.get("/logs")
-def get_logs():
+def get_logs(log_id: int = -1):
     global logs
-    return {"success": True, "logs": logs}
+    if log_id < 0:
+        return {"success": True, "logs": logs}
+    if log_id not in logs:
+        return {"success": False, "error": f"Unable to find log with id {log_id}"}
+    return {"success": True, "log": logs[log_id]}
 
 # Setup Environment
 @app.post("/environment")
