@@ -2,6 +2,8 @@
 Agentic sampling loop that calls the Anthropic API and local implementation of anthropic-defined computer use tools.
 """
 
+import json
+
 import platform
 from collections.abc import Callable
 from datetime import datetime
@@ -69,6 +71,7 @@ SYSTEM_PROMPT = f"""<SYSTEM_CAPABILITY>
 
 async def sampling_loop(
     *,
+    fastapi_log_id: int, # NEW
     model: str,
     provider: APIProvider,
     system_prompt_suffix: str,
@@ -165,6 +168,7 @@ async def sampling_loop(
                 "content": response_params,
             }
         )
+        await _fastapi_log(fastapi_log_id, "assistant", response_params)
 
         tool_result_content: list[BetaToolResultBlockParam] = []
         for content_block in response_params:
@@ -183,6 +187,19 @@ async def sampling_loop(
             return messages
 
         messages.append({"content": tool_result_content, "role": "user"})
+        await _fastapi_log(fastapi_log_id, "user", tool_result_content) # NEW
+
+async def _fastapi_log(fastapi_log_id, role, content): # NEW    
+    dat = {
+        "log_id": fastapi_log_id,
+        "raw_data": json.dumps({
+            "role": role,
+            "content": content,
+        }),
+        "completed": False,
+    }
+    with open("/tmp/fastapi_log.txt", "a") as f:
+        f.write(json.dumps(dat) + "\n")
 
 
 def _maybe_filter_to_n_most_recent_images(

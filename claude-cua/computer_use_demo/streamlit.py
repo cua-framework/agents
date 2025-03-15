@@ -3,7 +3,6 @@ Entrypoint for streamlit, see https://docs.streamlit.io/
 """
 
 import requests
-import json
 import logging
 
 import asyncio
@@ -305,6 +304,7 @@ async def main():
         with track_sampling_loop():
             # run the agent sampling loop with the newest message
             st.session_state.messages = await sampling_loop(
+                fastapi_log_id=fastapi_log_id, # NEW
                 system_prompt_suffix=st.session_state.custom_system_prompt,
                 model=st.session_state.model,
                 provider=st.session_state.provider,
@@ -327,9 +327,9 @@ async def main():
                 else None,
                 token_efficient_tools_beta=st.session_state.token_efficient_tools_beta,
             )
-            requests.post("http://localhost:8085/logs", json={ # NEW
-                "log_id": fastapi_log_id, # NEW
-                "raw_data": json.dumps(st.session_state.messages) # NEW
+            requests.post("http://localhost:8085/logs", json={
+                "log_id": fastapi_log_id,
+                "completed": True
             }) # NEW
 
 

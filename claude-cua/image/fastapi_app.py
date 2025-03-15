@@ -24,8 +24,9 @@ class PromptInput(BaseModel):
     prompt: str
 
 class LogInput(BaseModel):
-    raw_data: str
+    raw_data: Optional[str] = None
     log_id: int
+    completed: bool
 
 class InstructionInput(BaseModel):
     instruction_type: str
@@ -76,24 +77,47 @@ def get_prompt(): # INTERNAL USE ONLY
     resp = {"success": True, "prompt": prompt, "log_id": next_log_id}
     return resp
 
+def _clear_tmp():
+    if not os.path.exists("/tmp/fastapi_log.txt"):
+        return
+    with open("/tmp/fastapi_log.txt", "r+") as f:
+        dat = f.read()
+        f.truncate(0)  # Clear the file after reading
+    dat = dat.split("\n")
+    for line in dat:
+        if len(line) == 0:
+            continue
+        tmp = json.loads(line)
+        #print("[DEBUG]", tmp)
+        li = LogInput(raw_data=tmp.get("raw_data"), log_id=tmp["log_id"], completed=tmp["completed"])
+        add_log(li)
+
 # Add Log
 @app.post("/logs")
 def add_log(item: LogInput): # INTERNAL USE ONLY
     global prompt, state, logs
+    _clear_tmp()
     if state != 2:
         return {"success": False, "state": state}
-    logs[item.log_id] = {
-        "prompt": prompt,
-        "chat": json.loads(item.raw_data)
-    }
-    prompt = None
-    state = 0
+    if item.log_id not in logs:
+        logs[item.log_id] = {
+            "prompt": prompt,
+            "completed": False,
+            "chat": []
+        }
+    if item.completed:
+        logs[item.log_id]["completed"] = True
+        prompt = None
+        state = 0
+    else:
+        logs[item.log_id]["chat"].append(json.loads(item.raw_data))
     return {"success": True}
     
 # Get Logs
 @app.get("/logs")
 def get_logs(log_id: int = -1):
     global logs
+    _clear_tmp()
     if log_id < 0:
         return {"success": True, "logs": logs}
     if log_id not in logs:
