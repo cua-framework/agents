@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.options import Options
 import subprocess
 import os
 import base64
+import filelock
 
 # Initialize the FastAPI app
 app = FastAPI()
@@ -18,6 +19,7 @@ prompt = None
 state = 0 # 0: Waiting for Prompt, 1: Waiting for Streamlit, 2: Waiting for Claude
 next_log_id = 0
 logs = {} # Log ID -> Log
+_clear_tmp_lock = filelock.FileLock("/tmp/fastapi_clear_tmp.lock")
 
 # Pydantic model for request body validation
 class PromptInput(BaseModel):
@@ -78,27 +80,37 @@ def get_prompt(): # INTERNAL USE ONLY
     return resp
 
 def _clear_tmp():
-    if not os.path.exists("/tmp/fastapi_log.txt"):
-        return
-    with open("/tmp/fastapi_log.txt", "r+") as f:
-        dat = f.read()
-        f.truncate(0)  # Clear the file after reading
-    dat = dat.split("\n")
-    for line in dat:
-        if len(line) == 0:
-            continue
-        tmp = json.loads(line)
-        #print("[DEBUG]", tmp)
-        li = LogInput(raw_data=tmp.get("raw_data"), log_id=tmp["log_id"], completed=tmp["completed"])
-        add_log(li)
+    global _clear_tmp_lock
+    with _clear_tmp_lock:
+        os.makedirs("/tmp/loop", exist_ok=True)
+        files = os.listdir("/tmp/loop")
+        files.sort()
+        for file in files:
+            print("_clear_tmp A", file)
+            with open(f"/tmp/loop/{file}", "r") as f:
+                dat = f.read()
+            print("_clear_tmp B", file, dat)
+            if len(dat) == 0:
+                break
+            print("_clear_tmp C", file)
+            os.remove(f"/tmp/loop/{file}")
+            tmp = json.loads(dat)
+            li = LogInput(raw_data=tmp.get("raw_data"), log_id=tmp["log_id"], completed=tmp["completed"])
+            _add_log(li)
+            print("_clear_tmp D", file)
 
 # Add Log
 @app.post("/logs")
 def add_log(item: LogInput): # INTERNAL USE ONLY
-    global prompt, state, logs
+    global state
     _clear_tmp()
     if state != 2:
         return {"success": False, "state": state}
+    _add_log(item)
+    return {"success": True}
+
+def _add_log(item: LogInput):
+    global state, prompt, logs
     if item.log_id not in logs:
         logs[item.log_id] = {
             "prompt": prompt,
@@ -111,8 +123,7 @@ def add_log(item: LogInput): # INTERNAL USE ONLY
         state = 0
     else:
         logs[item.log_id]["chat"].append(json.loads(item.raw_data))
-    return {"success": True}
-    
+
 # Get Logs
 @app.get("/logs")
 def get_logs(log_id: int = -1):

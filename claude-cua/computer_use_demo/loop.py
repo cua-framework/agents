@@ -3,6 +3,9 @@ Agentic sampling loop that calls the Anthropic API and local implementation of a
 """
 
 import json
+import logging
+import os
+import time
 
 import platform
 from collections.abc import Callable
@@ -69,6 +72,8 @@ SYSTEM_PROMPT = f"""<SYSTEM_CAPABILITY>
 </IMPORTANT>"""
 
 
+logging.basicConfig(filename="/tmp/claude-cua.log", level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s") # NEW
+
 async def sampling_loop(
     *,
     fastapi_log_id: int, # NEW
@@ -99,6 +104,7 @@ async def sampling_loop(
     )
 
     while True:
+        logging.debug("LOOP-A")
         enable_prompt_caching = False
         betas = [tool_group.beta_flag] if tool_group.beta_flag else []
         if token_efficient_tools_beta:
@@ -149,9 +155,11 @@ async def sampling_loop(
                 extra_body=extra_body,
             )
         except (APIStatusError, APIResponseValidationError) as e:
+            logging.debug("LOOP-R1", e)
             api_response_callback(e.request, e.response, e)
             return messages
         except APIError as e:
+            logging.debug("LOOP-R2", e)
             api_response_callback(e.request, e.body, e)
             return messages
 
@@ -168,7 +176,9 @@ async def sampling_loop(
                 "content": response_params,
             }
         )
-        await _fastapi_log(fastapi_log_id, "assistant", response_params)
+        logging.debug("LOOP-B")
+        _fastapi_log(fastapi_log_id, "assistant", response_params)
+        logging.debug("LOOP-C")
 
         tool_result_content: list[BetaToolResultBlockParam] = []
         for content_block in response_params:
@@ -183,13 +193,17 @@ async def sampling_loop(
                 )
                 tool_output_callback(result, content_block["id"])
 
+        logging.debug("LOOP-D")
         if not tool_result_content:
+            logging.debug("LOOP-R3")
             return messages
 
+        logging.debug("LOOP-E")
         messages.append({"content": tool_result_content, "role": "user"})
-        await _fastapi_log(fastapi_log_id, "user", tool_result_content) # NEW
+        _fastapi_log(fastapi_log_id, "user", tool_result_content) # NEW
+        logging.debug("LOOP-F")
 
-async def _fastapi_log(fastapi_log_id, role, content): # NEW    
+def _fastapi_log(fastapi_log_id, role, content): # NEW    
     dat = {
         "log_id": fastapi_log_id,
         "raw_data": json.dumps({
@@ -198,7 +212,8 @@ async def _fastapi_log(fastapi_log_id, role, content): # NEW
         }),
         "completed": False,
     }
-    with open("/tmp/fastapi_log.txt", "a") as f:
+    os.makedirs("/tmp/loop", exist_ok=True)
+    with open(f"/tmp/loop/{time.time_ns()}.txt", "a") as f:
         f.write(json.dumps(dat) + "\n")
 
 

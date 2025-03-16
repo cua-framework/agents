@@ -17,12 +17,13 @@ while True:
         continue
     while len(cur_log) < len(resp["log"]["chat"]):
         print(f"[=== Entry #{len(cur_log)+1} ===]")
-        print(resp["log"]["chat"][len(cur_log)])
+        entry = resp["log"]["chat"][len(cur_log)]
+        print(str(entry)[:250])
         print(f"[=== Entry #{len(cur_log)+1} ===]\n")
-        cur_log.append(resp["log"]["chat"][len(cur_log)])
+        cur_log.append(entry)
     if resp["log"]["completed"]:
         print(f"[=== Overall Log ===]")
         print(resp["log"])
         print(f"[=== Overall Log ===]")
         break
-    time.sleep(1)
+    time.sleep(5)

@@ -6,3 +6,4 @@ google-auth<3,>=2
 uvicorn # NEW
 fastapi # NEW
 selenium # NEW
+filelock # NEW
