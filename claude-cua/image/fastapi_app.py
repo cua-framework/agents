@@ -54,6 +54,7 @@ def set_prompt(item: PromptInput): # TODO: Test concurrency
         
         # Set up headless browser
         options = Options()
+        options.binary_location = "/usr/bin/chromium-browser"  # Adjust this based on your system
         options.add_argument("--headless")  # Run browser in the background
         options.add_argument("--disable-gpu")  # Disable GPU acceleration (for headless mode)
         driver = webdriver.Chrome(options=options)

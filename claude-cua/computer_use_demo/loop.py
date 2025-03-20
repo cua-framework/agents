@@ -117,6 +117,7 @@ async def sampling_loop(
             client = AnthropicVertex()
         elif provider == APIProvider.BEDROCK:
             client = AnthropicBedrock()
+        logging.debug("LOOP-A1")
 
         if enable_prompt_caching:
             betas.append(PROMPT_CACHING_BETA_FLAG)
@@ -126,6 +127,7 @@ async def sampling_loop(
             only_n_most_recent_images = 0
             # Use type ignore to bypass TypedDict check until SDK types are updated
             system["cache_control"] = {"type": "ephemeral"}  # type: ignore
+        logging.debug("LOOP-A2")
 
         if only_n_most_recent_images:
             _maybe_filter_to_n_most_recent_images(
@@ -133,12 +135,14 @@ async def sampling_loop(
                 only_n_most_recent_images,
                 min_removal_threshold=image_truncation_threshold,
             )
+        logging.debug("LOOP-A3")
         extra_body = {}
         if thinking_budget:
             # Ensure we only send the required fields for thinking
             extra_body = {
                 "thinking": {"type": "enabled", "budget_tokens": thinking_budget}
             }
+        logging.debug("LOOP-A4")
 
         # Call the API
         # we use raw_response to provide debug information to streamlit. Your
@@ -154,6 +158,7 @@ async def sampling_loop(
                 betas=betas,
                 extra_body=extra_body,
             )
+            logging.debug(f"LOOP-A5 {raw_response}") # Sometimes it dies before A6... out of tokens??
         except (APIStatusError, APIResponseValidationError) as e:
             logging.debug("LOOP-R1", e)
             api_response_callback(e.request, e.response, e)
@@ -166,8 +171,10 @@ async def sampling_loop(
         api_response_callback(
             raw_response.http_response.request, raw_response.http_response, None
         )
+        logging.debug("LOOP-A6")
 
         response = raw_response.parse()
+        logging.debug("LOOP-A7")
 
         response_params = _response_to_params(response)
         messages.append(
@@ -182,16 +189,21 @@ async def sampling_loop(
 
         tool_result_content: list[BetaToolResultBlockParam] = []
         for content_block in response_params:
+            logging.debug(f"LOOP-C1 {content_block}")
             output_callback(content_block)
+            logging.debug("LOOP-C2")
             if content_block["type"] == "tool_use":
+                logging.debug("LOOP-C3")
                 result = await tool_collection.run(
                     name=content_block["name"],
                     tool_input=cast(dict[str, Any], content_block["input"]),
                 )
+                logging.debug(f"LOOP-C4 {result}")
                 tool_result_content.append(
                     _make_api_tool_result(result, content_block["id"])
                 )
                 tool_output_callback(result, content_block["id"])
+                logging.debug("LOOP-C5")
 
         logging.debug("LOOP-D")
         if not tool_result_content:

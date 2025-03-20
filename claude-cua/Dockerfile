@@ -48,7 +48,9 @@ RUN apt-get update && \
     tint2 \
     galculator \
     pcmanfm \
-    unzip && \
+    unzip \
+    # NEW
+    chromium-browser && \
     apt-get clean
 
 # Install noVNC
