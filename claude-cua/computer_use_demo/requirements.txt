@@ -5,5 +5,5 @@ boto3>=1.28.57
 google-auth<3,>=2
 uvicorn # NEW
 fastapi # NEW
-selenium # NEW
+playwright # NEW
 filelock # NEW

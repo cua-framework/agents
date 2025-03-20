@@ -3,8 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import requests
 import json
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from playwright.sync_api import sync_playwright
 import subprocess
 import os
 import base64
@@ -51,21 +50,18 @@ def set_prompt(item: PromptInput): # TODO: Test concurrency
     if state == 0:
         state = 1
         prompt = item.prompt
-        
-        # Set up headless browser
-        options = Options()
-        options.binary_location = "/usr/bin/chromium-browser"  # Adjust this based on your system
-        options.add_argument("--headless")  # Run browser in the background
-        options.add_argument("--disable-gpu")  # Disable GPU acceleration (for headless mode)
-        driver = webdriver.Chrome(options=options)
-
-        # Open the Streamlit app
-        driver.get("http://localhost:8501")  # Your Streamlit URL
-
-        # Wait for JavaScript to load (adjust if necessary)
-        driver.implicitly_wait(5)  # seconds
-        
         next_log_id += 1
+        
+        # Set up headless browser with Playwright
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            
+            # Open the Streamlit app
+            page.goto("http://localhost:8501")  # Your Streamlit URL
+            
+            # Wait for JavaScript to load (adjust if necessary)
+            page.wait_for_timeout(5000)  # 5 seconds
 
         return {"success": True, "log_id": next_log_id}
     return {"success": False, "state": state}

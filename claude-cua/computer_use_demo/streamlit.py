@@ -5,6 +5,8 @@ Entrypoint for streamlit, see https://docs.streamlit.io/
 import requests
 import logging
 
+logging.basicConfig(filename="/tmp/claude-cua.log", level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s") # NEW
+
 import asyncio
 import base64
 import os
@@ -253,6 +255,7 @@ async def main():
     if resp["success"]: # NEW
         new_message = resp["prompt"] # NEW
         fastapi_log_id = resp["log_id"] # NEW
+        logging.debug(f"OBTAINED fastapi_log_id {fastapi_log_id}")
 
     with chat:
         # render past chats
@@ -299,7 +302,6 @@ async def main():
             # we don't have a user message to respond to, exit early
             return
 
-        logging.basicConfig(filename="/tmp/claude-cua.log", level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s") # NEW
         #logging.debug(vars(st.session_state)) # NEW
         with track_sampling_loop():
             # run the agent sampling loop with the newest message
@@ -327,10 +329,7 @@ async def main():
                 else None,
                 token_efficient_tools_beta=st.session_state.token_efficient_tools_beta,
             )
-            requests.post("http://localhost:8085/logs", json={
-                "log_id": fastapi_log_id,
-                "completed": True
-            }) # NEW
+            logging.debug("FINISH SAMPLING LOOP")
 
 
 def maybe_add_interruption_blocks():
@@ -422,19 +421,26 @@ def _api_response_callback(
     """
     Handle an API response by storing it to state and rendering it.
     """
+    logging.debug("_api_response_callback P1")
     response_id = datetime.now().isoformat()
     response_state[response_id] = (request, response)
+    logging.debug("_api_response_callback P2")
     if error:
+        logging.debug(f"_api_response_callback P3 {error}")
         _render_error(error)
-    _render_api_response(request, response, response_id, tab)
+        logging.debug(f"_api_response_callback P4 {error}")
+    #_render_api_response(request, response, response_id, tab) # DISABLE SINCE THIS IS CAUSING ISSUES
+    logging.debug("_api_response_callback P5")
 
 
 def _tool_output_callback(
     tool_output: ToolResult, tool_id: str, tool_state: dict[str, ToolResult]
 ):
     """Handle a tool output by storing it to state and rendering it."""
+    logging.debug("_tool_output_callback P1")
     tool_state[tool_id] = tool_output
     _render_message(Sender.TOOL, tool_output)
+    logging.debug("_tool_output_callback P2")
 
 
 def _render_api_response(
@@ -481,6 +487,8 @@ def _render_message(
     message: str | BetaContentBlockParam | ToolResult,
 ):
     """Convert input from the user or output from the agent to a streamlit message."""
+    return # DISABLE SINCE THIS IS CAUSING ISSUES
+    
     # streamlit's hotreloading breaks isinstance checks, so we need to check for class names
     is_tool_result = not isinstance(message, str | dict)
     if not message or (

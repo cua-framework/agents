@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import time
+import requests
 
 import platform
 from collections.abc import Callable
@@ -161,10 +162,12 @@ async def sampling_loop(
             logging.debug(f"LOOP-A5 {raw_response}") # Sometimes it dies before A6... out of tokens??
         except (APIStatusError, APIResponseValidationError) as e:
             logging.debug("LOOP-R1", e)
+            _fastpi_end(fastapi_log_id) # NEW
             api_response_callback(e.request, e.response, e)
             return messages
         except APIError as e:
             logging.debug("LOOP-R2", e)
+            _fastpi_end(fastapi_log_id) # NEW
             api_response_callback(e.request, e.body, e)
             return messages
 
@@ -202,12 +205,14 @@ async def sampling_loop(
                 tool_result_content.append(
                     _make_api_tool_result(result, content_block["id"])
                 )
-                tool_output_callback(result, content_block["id"])
                 logging.debug("LOOP-C5")
+                tool_output_callback(result, content_block["id"])
+                logging.debug("LOOP-C6")
 
         logging.debug("LOOP-D")
         if not tool_result_content:
             logging.debug("LOOP-R3")
+            _fastpi_end(fastapi_log_id) # NEW
             return messages
 
         logging.debug("LOOP-E")
@@ -227,6 +232,12 @@ def _fastapi_log(fastapi_log_id, role, content): # NEW
     os.makedirs("/tmp/loop", exist_ok=True)
     with open(f"/tmp/loop/{time.time_ns()}.txt", "a") as f:
         f.write(json.dumps(dat) + "\n")
+
+def _fastpi_end(fastapi_log_id): # NEW
+    requests.post("http://localhost:8085/logs", json={
+        "log_id": fastapi_log_id,
+        "completed": True
+    }) # NEW
 
 
 def _maybe_filter_to_n_most_recent_images(
