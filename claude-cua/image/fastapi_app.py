@@ -19,6 +19,7 @@ state = 0 # 0: Waiting for Prompt, 1: Waiting for Streamlit, 2: Waiting for Clau
 next_log_id = 0
 logs = {} # Log ID -> Log
 _clear_tmp_lock = filelock.FileLock("/tmp/fastapi_clear_tmp.lock")
+kill_signal = False
 
 # Pydantic model for request body validation
 class PromptInput(BaseModel):
@@ -28,6 +29,7 @@ class LogInput(BaseModel):
     raw_data: Optional[str] = None
     log_id: int
     completed: bool
+    killed: Optional[bool] = False
 
 class InstructionInput(BaseModel):
     instruction_type: str
@@ -112,10 +114,13 @@ def _add_log(item: LogInput):
         logs[item.log_id] = {
             "prompt": prompt,
             "completed": False,
+            "killed": False,
             "chat": []
         }
     if item.completed:
         logs[item.log_id]["completed"] = True
+        if item.killed:
+            logs[item.log_id]["killed"] = True
         prompt = None
         state = 0
     else:
@@ -131,6 +136,21 @@ def get_logs(log_id: int = -1):
     if log_id not in logs:
         return {"success": False, "error": f"Unable to find log with id {log_id}"}
     return {"success": True, "log": logs[log_id]}
+
+# Send Kill Signal
+@app.post("/kill")
+def post_kill():
+    global state, kill_signal
+    if state != 2:
+        return {"success": False, "state": state}
+    kill_signal = True
+    return {"success": True}
+
+# Check Kill Signal
+@app.get("/kill")
+def get_kill():
+    global kill_signal
+    return {"success": True, "kill_signal": kill_signal}
 
 # Setup Environment
 @app.post("/environment")

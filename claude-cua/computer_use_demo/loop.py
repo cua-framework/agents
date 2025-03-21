@@ -162,12 +162,12 @@ async def sampling_loop(
             logging.debug(f"LOOP-A5 {raw_response}") # Sometimes it dies before A6... out of tokens??
         except (APIStatusError, APIResponseValidationError) as e:
             logging.debug("LOOP-R1", e)
-            _fastpi_end(fastapi_log_id) # NEW
+            _fastapi_end(fastapi_log_id) # NEW
             api_response_callback(e.request, e.response, e)
             return messages
         except APIError as e:
             logging.debug("LOOP-R2", e)
-            _fastpi_end(fastapi_log_id) # NEW
+            _fastapi_end(fastapi_log_id) # NEW
             api_response_callback(e.request, e.body, e)
             return messages
 
@@ -212,13 +212,17 @@ async def sampling_loop(
         logging.debug("LOOP-D")
         if not tool_result_content:
             logging.debug("LOOP-R3")
-            _fastpi_end(fastapi_log_id) # NEW
+            _fastapi_end(fastapi_log_id) # NEW
             return messages
 
         logging.debug("LOOP-E")
         messages.append({"content": tool_result_content, "role": "user"})
         _fastapi_log(fastapi_log_id, "user", tool_result_content) # NEW
         logging.debug("LOOP-F")
+        
+        if _fastapi_check_kill(): # NEW
+            _fastapi_end(fastapi_log_id, killed=True) # NEW
+            return messages
 
 def _fastapi_log(fastapi_log_id, role, content): # NEW    
     dat = {
@@ -233,11 +237,16 @@ def _fastapi_log(fastapi_log_id, role, content): # NEW
     with open(f"/tmp/loop/{time.time_ns()}.txt", "a") as f:
         f.write(json.dumps(dat) + "\n")
 
-def _fastpi_end(fastapi_log_id): # NEW
+def _fastapi_end(fastapi_log_id, killed=False): # NEW
     requests.post("http://localhost:8085/logs", json={
         "log_id": fastapi_log_id,
-        "completed": True
+        "completed": True,
+        "killed": killed
     }) # NEW
+
+def _fastapi_check_kill(): # NEW
+    resp = requests.get("http://localhost:8085/kill").json()
+    return resp["kill_signal"]
 
 
 def _maybe_filter_to_n_most_recent_images(
