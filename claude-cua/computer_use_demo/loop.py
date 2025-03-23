@@ -197,17 +197,19 @@ async def sampling_loop(
             logging.debug("LOOP-C2")
             if content_block["type"] == "tool_use":
                 logging.debug("LOOP-C3")
+                _fastapi_log(fastapi_log_id, "assistant", content_block) # NEW
+                logging.debug("LOOP-C4")
                 result = await tool_collection.run(
                     name=content_block["name"],
                     tool_input=cast(dict[str, Any], content_block["input"]),
                 )
-                logging.debug(f"LOOP-C4 {result}")
+                logging.debug(f"LOOP-C5 {result}")
                 tool_result_content.append(
                     _make_api_tool_result(result, content_block["id"])
                 )
-                logging.debug("LOOP-C5")
-                tool_output_callback(result, content_block["id"])
                 logging.debug("LOOP-C6")
+                tool_output_callback(result, content_block["id"])
+                logging.debug("LOOP-C7")
 
         logging.debug("LOOP-D")
         if not tool_result_content:
