@@ -20,6 +20,7 @@ next_log_id = 0
 logs = {} # Log ID -> Log
 _clear_tmp_lock = filelock.FileLock("/tmp/fastapi_clear_tmp.lock")
 kill_signal = False
+created_files = []
 
 # Pydantic model for request body validation
 class PromptInput(BaseModel):
@@ -186,18 +187,24 @@ def setup_environment(item: EnvironmentInput):
     return {"success": True}
 
 def _file_create(path: str, b64_data: str):
+    global created_files
     data = base64.b64decode(b64_data)
     os.makedirs(os.path.dirname(path), exist_ok=True) # Create parent directories if they don't exist
     with open(path, "wb") as file:
         file.write(data)
+    created_files.append(path)
 
 def _firefox_open(url: str):
     subprocess.Popen(["firefox-esr", url], env=ENV) # Launch Firefox asynchronously
 
 def _libreoffice_calc_open(path: str):
-    subprocess.Popen(["libreoffice", "--calc", '--infilter="CSV:44,34,UTF8"', path], env=ENV) # Launch LibreOffice Calc asynchronously
+    subprocess.Popen(["libreoffice", "--norestore", "--calc", '--infilter="CSV:44,34,UTF8"', path], env=ENV) # Launch LibreOffice Calc asynchronously
 
 def _close_all():
+    global created_files
+    for created_file in created_files:
+        os.remove(created_file)
+    created_files = []
     result = subprocess.run(["xdotool", "search", "--onlyvisible", "--name", "."], env=ENV, capture_output=True, text=True)
     window_ids = result.stdout.splitlines()[3:] # Don't kill the first 3 window ids (killing them breaks the GUI)
     for win_id in window_ids:
