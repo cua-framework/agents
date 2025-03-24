@@ -114,7 +114,7 @@ def add_log(item: LogInput): # INTERNAL USE ONLY
     return {"success": True}
 
 def _add_log(item: LogInput):
-    global state, prompt, logs
+    global state, prompt, logs, kill_signal
     if item.log_id not in logs:
         logs[item.log_id] = {
             "prompt": prompt,
@@ -126,6 +126,7 @@ def _add_log(item: LogInput):
         logs[item.log_id]["completed"] = True
         if item.killed:
             logs[item.log_id]["killed"] = True
+            kill_signal = False # Reset kill signal
         prompt = None
         state = 0
     else:

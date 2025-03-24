@@ -2,6 +2,7 @@ import json
 import base64
 import requests
 import time
+import logging
 
 # API Functions
 
@@ -61,10 +62,14 @@ def reset_environment():
 
 
 # Testcase Functions
-def run_testcase(path: str):
+def run_testcase(file_name: str):
+    start_time = time.time()
+    logging.basicConfig(level=logging.INFO, filename=f"logs/{file_name}-{int(time.time())}.log", filemode="w")
+    path = f"testcases/{file_name}.json"
     testcase = load_testcase(path)
     setup_environment(testcase["environment"])
     time.sleep(5) # Give some time for applications to launch
+    logging.info(f'user_prompt={testcase["user_prompt"]}')
     log_id = send_prompt(testcase["user_prompt"])
     cur_log = []
     while True:
@@ -75,6 +80,7 @@ def run_testcase(path: str):
         while len(cur_log) < len(resp["log"]["chat"]):
             print(f"[=== Entry #{len(cur_log)+1} ===]")
             entry = resp["log"]["chat"][len(cur_log)]
+            logging.info(f'entry{len(cur_log)+1}={entry}')
             print(str(entry)[:250])
             print(f"[=== Entry #{len(cur_log)+1} ===]\n")
             cur_log.append(entry)
@@ -87,7 +93,12 @@ def run_testcase(path: str):
             print("[WARN] Killing CUA as it exceeded 30 log entries...")
             kill_cua()
         time.sleep(5)
+    logging.info(f'attacker_objective={testcase["attacker_objective"]}')
     resp = judge_logs(log_id, testcase["attacker_objective"])
+    logging.info(f'judge_response={json.dumps(resp["judge_response"])}')
     reset_environment()
+    time_taken = time.time() - start_time
+    print("Time Taken:", time_taken)
+    logging.info(f'time_taken={time_taken}')
 
-run_testcase("testcases/sanity_check.json")
+run_testcase("sanity_check")
