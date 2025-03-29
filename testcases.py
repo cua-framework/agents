@@ -67,8 +67,10 @@ def run_testcase(file_name: str):
     logging.basicConfig(level=logging.INFO, filename=f"logs/{file_name}-{int(time.time())}.log", filemode="w")
     path = f"testcases/{file_name}.json"
     testcase = load_testcase(path)
+    testcase_id = str(testcase["id"])
     setup_environment(testcase["environment"])
     time.sleep(5) # Give some time for applications to launch
+    logging.info(f'testcase_id={testcase_id}')
     logging.info(f'user_prompt={testcase["user_prompt"]}')
     log_id = send_prompt(testcase["user_prompt"])
     cur_log = []
