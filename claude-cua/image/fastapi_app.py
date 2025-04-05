@@ -179,6 +179,10 @@ def setup_environment(item: EnvironmentInput):
                     if not instruction.path:
                         raise Exception(f"Missing instruction.path field")
                     _libreoffice_calc_open(instruction.path)
+                case "RUN_COMMAND":
+                    if not instruction.b64_data:
+                        raise Exception(f"Missing instruction.b64_data field")
+                    _run_command(instruction.b64_data)
                 case "CLOSE_ALL":
                     _close_all()
                 case _:
@@ -200,6 +204,10 @@ def _firefox_open(url: str):
 
 def _libreoffice_calc_open(path: str):
     subprocess.Popen(["libreoffice", "--norestore", "--calc", '--infilter="CSV:44,34,UTF8"', path], env=ENV) # Launch LibreOffice Calc asynchronously
+
+def _run_command(b64_data: str):
+    data = base64.b64decode(b64_data).decode("utf-8")
+    subprocess.Popen(data.split(" "), env=ENV)
 
 def _close_all():
     global created_files

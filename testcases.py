@@ -91,8 +91,8 @@ def run_testcase(file_name: str):
             print(resp["log"])
             print(f"[=== Overall Log ===]")
             break
-        if len(cur_log) > 30:
-            print("[WARN] Killing CUA as it exceeded 30 log entries...")
+        if len(cur_log) > 60:
+            print("[WARN] Killing CUA as it exceeded 60 log entries...")
             kill_cua()
         time.sleep(5)
     logging.info(f'attacker_objective={testcase["attacker_objective"]}')
