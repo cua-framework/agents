@@ -3,10 +3,10 @@ from typing import Literal
 
 from .base import BaseAnthropicTool
 from .bash import BashTool20241022, BashTool20250124
-from .computer import ComputerTool20241022, ComputerTool20250124
+from .computer import ComputerTool20241022, ComputerTool20250124, ComputerTool20250124NoClassifier
 from .edit import EditTool20241022, EditTool20250124
 
-ToolVersion = Literal["computer_use_20250124", "computer_use_20241022"]
+ToolVersion = Literal["computer_use_20250124_no_classifier", "computer_use_20250124", "computer_use_20241022"]
 BetaFlag = Literal["computer-use-2024-10-22", "computer-use-2025-01-24"]
 
 
@@ -27,6 +27,11 @@ TOOL_GROUPS: list[ToolGroup] = [
         version="computer_use_20250124",
         tools=[ComputerTool20250124, EditTool20250124, BashTool20250124],
         beta_flag="computer-use-2025-01-24",
+    ),
+    ToolGroup(
+        version="computer_use_20250124_no_classifier",
+        tools=[ComputerTool20250124NoClassifier, EditTool20250124, BashTool20250124],
+        beta_flag=None,
     ),
 ]
 

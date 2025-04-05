@@ -58,7 +58,7 @@ SONNET_3_5_NEW = ModelConfig(
 )
 
 SONNET_3_7 = ModelConfig(
-    tool_version="computer_use_20250124",
+    tool_version="computer_use_20250124",  # Replace with tool_version="computer_use_20250124_no_classifier" to use version without Claude classifier
     max_output_tokens=128_000,
     default_output_tokens=1024 * 16,
     has_thinking=True,
