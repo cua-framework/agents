@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_INSTALL_SUMMARY_VARIANT",
+    "id": "EMAIL_SUMMARY_INSTALL",
     "url": "https://cua-security.github.io/benchmark/email/?id=ins",
     "environment": [
         {
