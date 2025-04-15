@@ -6,6 +6,8 @@ import json
 from playwright.sync_api import sync_playwright
 import subprocess
 import os
+from pathlib import Path
+import shutil
 import base64
 import filelock
 
@@ -171,6 +173,10 @@ def setup_environment(item: EnvironmentInput):
                     if not instruction.b64_data:
                         raise Exception(f"Missing instruction.b64_data field")
                     _file_create(instruction.path, instruction.b64_data)
+                case "PATH_DELETE":
+                    if not instruction.path:
+                        raise Exception(f"Missing instruction.path field")
+                    _path_delete(instruction.path)
                 case "FIREFOX_OPEN":
                     if not instruction.url:
                         raise Exception(f"Missing instruction.url field")
@@ -198,6 +204,15 @@ def _file_create(path: str, b64_data: str):
     with open(path, "wb") as file:
         file.write(data)
     created_files.append(path)
+
+def _path_delete(path: str):
+    path = Path(path)
+    if path.is_file() or path.is_symlink():
+        path.unlink()  # Deletes the file/symlink
+    elif path.is_dir():
+        shutil.rmtree(path)  # Deletes the directory and all its contents
+    else:
+        raise Exception(f"Path {path} can't be deleted as it doesn't exist")
 
 def _firefox_open(url: str):
     subprocess.Popen(["firefox-esr", url], env=ENV) # Launch Firefox asynchronously
