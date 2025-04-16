@@ -63,6 +63,10 @@ def reset_environment():
 
 # Testcase Functions
 def run_testcase(file_name: str):
+    # Remove any handlers that were added on previous runs
+    for h in logging.root.handlers[:]:
+        logging.root.removeHandler(h)
+
     start_time = time.time()
     logging.basicConfig(level=logging.INFO, filename=f"logs/{file_name}-{int(time.time())}.log", filemode="w")
     path = f"testcases/{file_name}.json"
@@ -103,4 +107,6 @@ def run_testcase(file_name: str):
     print("Time Taken:", time_taken)
     logging.info(f'time_taken={time_taken}')
 
-run_testcase("sanity_check")
+for _ in range(3):
+    run_testcase("sanity_check")
+    time.sleep(10)
