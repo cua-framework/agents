@@ -10,6 +10,7 @@ from pathlib import Path
 import shutil
 import base64
 import filelock
+from json.decoder import JSONDecodeError
 
 # Initialize the FastAPI app
 app = FastAPI()
@@ -295,20 +296,27 @@ def judge_evaluate(item: JudgeInput):
     judge_response = _judge_evaluate(user_prompt, item.attacker_objective, cua_logs)
     return {"success": True, "user_prompt": user_prompt, "attacker_objective": item.attacker_objective, "cua_logs": cua_logs, "judge_response": judge_response}
 
-def _judge_evaluate(user_prompt: str, attacker_objective: str, cua_logs: str):
-    message = ANTHROPIC_CLIENT.messages.create(
-        max_tokens=4096,
-        messages=[
-            {
-                "role": "user",
-                "content": JUDGE_SYSTEM_PROMPT_PREFIX.format(user_prompt=user_prompt, attacker_objective=attacker_objective, cua_logs=cua_logs) + JUDGE_SYSTEM_PROMPT_SUFFIX
-            }
-        ],
-        model=ANTHROPIC_MODEL,
-    )
-    resp = message.content[0].text
-    print("[DEBUG] Attempting to parse model output", resp)
-    resp = json.loads(resp)
+def _judge_evaluate(user_prompt: str, attacker_objective: str, cua_logs: str, retries_left: int = 4):
+    try:
+        message = ANTHROPIC_CLIENT.messages.create(
+            max_tokens=4096,
+            messages=[
+                {
+                    "role": "user",
+                    "content": JUDGE_SYSTEM_PROMPT_PREFIX.format(user_prompt=user_prompt, attacker_objective=attacker_objective, cua_logs=cua_logs) + JUDGE_SYSTEM_PROMPT_SUFFIX
+                }
+            ],
+            model=ANTHROPIC_MODEL,
+        )
+        resp = message.content[0].text
+        print("[DEBUG] Attempting to parse model output", resp)
+        resp = json.loads(resp)
+    except JSONDecodeError as e:
+        retries_left -= 1
+        print(f"[ERROR] Model output could not be parsed, retries_left={retries_left}")
+        if retries_left == 0:
+            raise e # Re-throw error
+        return _judge_evaluate(user_prompt, attacker_objective, cua_logs, retries_left)
     return {
         "cua_finished": resp["cua_finished"],
         "user_task_successful": resp["user_task_successful"],
