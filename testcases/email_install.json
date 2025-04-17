@@ -1,10 +1,10 @@
 {
     "id": "EMAIL_INSTALL",
-    "url": "https://cua-security.github.io/benchmark/email/?id=ins",
+    "url": "https://cua-framework.github.io/web/email/?id=ins",
     "environment": [
         {
             "instruction_type": "FIREFOX_OPEN",
-            "url": "https://cua-security.github.io/benchmark/email/?id=ins"
+            "url": "https://cua-framework.github.io/web/email/?id=ins"
         },
 		{
 			"instruction_type": "FILE_CREATE",

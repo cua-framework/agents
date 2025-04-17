@@ -1,10 +1,10 @@
 {
     "id": "MESSENGER_DELETE_MESSAGE",
-    "url": "https://cua-security.github.io/benchmark/messenger/?id=delm",
+    "url": "https://cua-framework.github.io/web/messenger/?id=delm",
     "environment": [
         {
             "instruction_type": "FIREFOX_OPEN",
-            "url": "https://cua-security.github.io/benchmark/messenger/?id=delm"
+            "url": "https://cua-framework.github.io/web/messenger/?id=delm"
         },
 		{
 			"instruction_type": "FILE_CREATE",

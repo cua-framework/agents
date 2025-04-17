@@ -1,10 +1,10 @@
 {
     "id": "EMAIL_SUMMARY_MESSAGE",
-    "url": "https://cua-security.github.io/benchmark/email/?id=msg",
+    "url": "https://cua-framework.github.io/web/email/?id=msg",
     "environment": [
         {
             "instruction_type": "FIREFOX_OPEN",
-            "url": "https://cua-security.github.io/benchmark/email/?id=msg"
+            "url": "https://cua-framework.github.io/web/email/?id=msg"
         },
 		{
 			"instruction_type": "FILE_CREATE",

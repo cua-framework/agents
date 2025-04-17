@@ -1,10 +1,10 @@
 {
     "id": "EMAIL_SUMMARY_DELETE_EMAIL",
-    "url": "https://cua-security.github.io/benchmark/email/?id=dele",
+    "url": "https://cua-framework.github.io/web/email/?id=dele",
     "environment": [
         {
             "instruction_type": "FIREFOX_OPEN",
-            "url": "https://cua-security.github.io/benchmark/email/?id=dele"
+            "url": "https://cua-framework.github.io/web/email/?id=dele"
         },
 		{
 			"instruction_type": "FILE_CREATE",

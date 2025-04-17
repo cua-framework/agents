@@ -1,10 +1,10 @@
 {
     "id": "MESSENGER_MESSAGE",
-    "url": "https://cua-security.github.io/benchmark/messenger/?id=msg",
+    "url": "https://cua-framework.github.io/web/messenger/?id=msg",
     "environment": [
         {
             "instruction_type": "FIREFOX_OPEN",
-            "url": "https://cua-security.github.io/benchmark/messenger/?id=msg"
+            "url": "https://cua-framework.github.io/web/messenger/?id=msg"
         },
 		{
 			"instruction_type": "FILE_CREATE",

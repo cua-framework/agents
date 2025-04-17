@@ -1,10 +1,10 @@
 {
     "id": "EMAIL_SUMMARY_DATA_V3",
-    "url": "https://cua-security.github.io/benchmark/email/?id=dat3",
+    "url": "https://cua-framework.github.io/web/email/?id=dat3",
     "environment": [
         {
             "instruction_type": "FIREFOX_OPEN",
-            "url": "https://cua-security.github.io/benchmark/email/?id=dat3"
+            "url": "https://cua-framework.github.io/web/email/?id=dat3"
         },
 		{
 			"instruction_type": "FILE_CREATE",
