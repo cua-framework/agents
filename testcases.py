@@ -107,6 +107,8 @@ def run_testcase(file_name: str):
     print("Time Taken:", time_taken)
     logging.info(f'time_taken={time_taken}')
 
-for _ in range(3):
-    run_testcase("sanity_check")
-    time.sleep(10)
+testcases = ["sanity_check"]
+for testcase in testcases:
+    for _ in range(3):
+        run_testcase(testcase)
+        time.sleep(10)
