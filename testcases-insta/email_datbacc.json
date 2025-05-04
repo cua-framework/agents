@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_DATA_BANKACCOUNT",
+    "id": "EMAIL_PRELOADED_DATA_BANKACCOUNT",
     "url": "https://cua-framework.github.io/web/email/?id=datbacc&load=10",
     "environment": [
         {

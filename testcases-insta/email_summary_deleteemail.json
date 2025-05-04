@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_SUMMARY_DELETE_EMAIL",
+    "id": "EMAIL_SUMMARY_PRELOADED_DELETE_EMAIL",
     "url": "https://cua-framework.github.io/web/email/?id=dele&load=10",
     "environment": [
         {

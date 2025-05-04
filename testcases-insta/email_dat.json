@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_DATA",
+    "id": "EMAIL_PRELOADED_DATA",
     "url": "https://cua-framework.github.io/web/email/?id=dat&load=10",
     "environment": [
         {

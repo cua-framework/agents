@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_DATA_SSH",
+    "id": "EMAIL_PRELOADED_DATA_SSH",
     "url": "https://cua-framework.github.io/web/email/?id=datssh&load=10",
     "environment": [
         {

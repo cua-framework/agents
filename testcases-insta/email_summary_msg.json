@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_SUMMARY_MESSAGE",
+    "id": "EMAIL_SUMMARY_PRELOADED_MESSAGE",
     "url": "https://cua-framework.github.io/web/email/?id=msg&load=10",
     "environment": [
         {

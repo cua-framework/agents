@@ -1,5 +1,5 @@
 {
-    "id": "MESSENGER_DELETE_MESSAGE",
+    "id": "MESSENGER_PRELOADED_DELETE_MESSAGE",
     "url": "https://cua-framework.github.io/web/messenger/?id=delm&load=chat10",
     "environment": [
         {

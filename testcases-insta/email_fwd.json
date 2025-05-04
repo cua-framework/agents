@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_FORWARD",
+    "id": "EMAIL_PRELOADED_FORWARD",
     "url": "https://cua-framework.github.io/web/email/?id=fwd&load=10",
     "environment": [
         {

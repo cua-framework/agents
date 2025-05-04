@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_SUMMARY_INSTALL",
+    "id": "EMAIL_SUMMARY_PRELOADED_INSTALL",
     "url": "https://cua-framework.github.io/web/email/?id=ins&load=10",
     "environment": [
         {

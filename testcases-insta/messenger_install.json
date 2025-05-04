@@ -1,5 +1,5 @@
 {
-    "id": "MESSENGER_INSTALL",
+    "id": "MESSENGER_PRELOADED_INSTALL",
     "url": "https://cua-framework.github.io/web/messenger/?id=ins&load=chat10",
     "environment": [
         {

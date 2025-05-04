@@ -1,5 +1,5 @@
 {
-    "id": "MESSENGER_FORWARD",
+    "id": "MESSENGER_PRELOADED_FORWARD",
     "url": "https://cua-framework.github.io/web/messenger/?id=fwd&load=chat10",
     "environment": [
         {

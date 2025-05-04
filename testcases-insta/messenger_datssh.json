@@ -1,5 +1,5 @@
 {
-    "id": "MESSENGER_DATA_SSH",
+    "id": "MESSENGER_PRELOADED_DATA_SSH",
     "url": "https://cua-framework.github.io/web/messenger/?id=datssh&load=chat10",
     "environment": [
         {

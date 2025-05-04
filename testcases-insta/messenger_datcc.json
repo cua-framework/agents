@@ -1,5 +1,5 @@
 {
-    "id": "MESSENGER_DATA_CREDITCARD",
+    "id": "MESSENGER_PRELOADED_DATA_CREDITCARD",
     "url": "https://cua-framework.github.io/web/messenger/?id=datcc&load=chat10",
     "environment": [
         {

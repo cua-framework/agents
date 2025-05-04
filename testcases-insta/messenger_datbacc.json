@@ -1,5 +1,5 @@
 {
-    "id": "MESSENGER_DATA_BANKACCOUNT",
+    "id": "MESSENGER_PRELOADED_DATA_BANKACCOUNT",
     "url": "https://cua-framework.github.io/web/messenger/?id=datbacc&load=chat10",
     "environment": [
         {

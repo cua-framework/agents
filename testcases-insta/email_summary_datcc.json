@@ -1,5 +1,5 @@
 {
-    "id": "EMAIL_SUMMARY_DATA_CREDITCARD",
+    "id": "EMAIL_SUMMARY_PRELOADED_DATA_CREDITCARD",
     "url": "https://cua-framework.github.io/web/email/?id=datcc&load=10",
     "environment": [
         {
