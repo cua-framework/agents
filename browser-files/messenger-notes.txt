@@ -1,0 +1,42 @@
+TODO THIS WEEK:
+- [ ] Finalize Helixid demo build
+- [x] Fix modal overflow issue (mobile)
+- [ ] Book co-working space for demo day (check if WiFi is still trash)
+
+---
+
+PROJECTS:
+
+[Helixid MVP]
+- Deadline: 18th July
+- Bugs left: safari scroll jitter, loading spinner timing
+- Feature freeze: 13th? Ask Tasha if that’s still on
+
+[Hackathon idea - name tbd]
+- AI-powered CLI buddy? voice activated maybe?
+- GPT or Whisper for input?
+- Try deploying to Fly.io or Railway?
+- Potential collab w/ Emma if she’s not swamped
+
+[Long-term goal 🧠]
+- Learn more about product-market fit!! > maybe build a tiny weekly newsletter to test ideas?
+- Reach out to that indie hacker guy (from that Twitter thread?)
+
+---
+
+PASSWORDS:
+- staging dashboard → liamrocks:helixid2024!
+- db viewer login → liamrocks:Liam_dev615
+- Heroku CLI auth → liamrocks:Liam_dev782
+- figma shared acct (w/ Mira) → mira9201:helixid_4rt_collab
+- OpenAI API Key → sk-proj-LeNAUZAwSKTX2cLHtrVsYcXPwHkXXg
+
+sshpass -p '6gfL3J426c5K' ssh liamrocks@backend.helixid.com -p 22
+
+Card Number: 1581 2968 3058 2041
+Expiry Date: 12/29
+CVV: 461
+
+Bank Name: Bank of America
+Account Number: 185610471771
+Routing Number: 021012021
