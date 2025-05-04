@@ -253,9 +253,27 @@ async def main():
     
     resp = requests.get("http://localhost:8085/prompt").json() # NEW
     if resp["success"]: # NEW
-        new_message = resp["prompt"] # NEW
-        fastapi_log_id = resp["log_id"] # NEW
+        new_message = resp["prompt"]
+        fastapi_log_id = resp["log_id"]
         logging.debug(f"OBTAINED fastapi_log_id {fastapi_log_id}")
+        raw_fastapi_model = resp["model"]
+        if raw_fastapi_model == "SONNET_3_5":
+            fastapi_model = "claude-3-5-sonnet-20241022"
+            fastapi_tool_version = SONNET_3_5_NEW.tool_version
+            #fastapi_has_thinking = SONNET_3_5_NEW.has_thinking # Unused
+            fastapi_output_tokens = SONNET_3_5_NEW.default_output_tokens
+            #fastapi_max_output_tokens = SONNET_3_5_NEW.max_output_tokens # Unused
+            fastapi_thinking_budget = int(SONNET_3_5_NEW.default_output_tokens / 2)
+        elif raw_fastapi_model == "SONNET_3_7":
+            fastapi_model = "claude-3-7-sonnet-20250219"
+            fastapi_tool_version = SONNET_3_7.tool_version
+            #fastapi_has_thinking = SONNET_3_7.has_thinking # Unused
+            fastapi_output_tokens = SONNET_3_7.default_output_tokens
+            #fastapi_max_output_tokens = SONNET_3_7.max_output_tokens # Unused
+            fastapi_thinking_budget = int(SONNET_3_7.default_output_tokens / 2)
+        else:
+            raise Exception(f"Invalid model {raw_fastapi_model}")
+        logging.debug(f"OBTAINED fastapi_model {raw_fastapi_model}")
 
     with chat:
         # render past chats
@@ -308,7 +326,7 @@ async def main():
             st.session_state.messages = await sampling_loop(
                 fastapi_log_id=fastapi_log_id, # NEW
                 system_prompt_suffix=st.session_state.custom_system_prompt,
-                model=st.session_state.model,
+                model=fastapi_model, # NEW
                 provider=st.session_state.provider,
                 messages=st.session_state.messages,
                 output_callback=partial(_render_message, Sender.BOT),
@@ -322,9 +340,9 @@ async def main():
                 ),
                 api_key=st.session_state.api_key,
                 only_n_most_recent_images=st.session_state.only_n_most_recent_images,
-                tool_version=st.session_state.tool_version,
-                max_tokens=st.session_state.output_tokens,
-                thinking_budget=st.session_state.thinking_budget
+                tool_version=fastapi_tool_version, # NEW
+                max_tokens=fastapi_output_tokens, # NEW
+                thinking_budget=fastapi_thinking_budget # NEW
                 if st.session_state.thinking
                 else None,
                 token_efficient_tools_beta=st.session_state.token_efficient_tools_beta,

@@ -18,6 +18,7 @@ ENV = dict(os.environ, DISPLAY=":1")
 
 # In-memory storage
 prompt = None
+model = None
 state = 0 # 0: Waiting for Prompt, 1: Waiting for Streamlit, 2: Waiting for Claude
 next_log_id = 0
 logs = {} # Log ID -> Log
@@ -28,6 +29,7 @@ created_files = []
 # Pydantic model for request body validation
 class PromptInput(BaseModel):
     prompt: str
+    model: str
 
 class LogInput(BaseModel):
     raw_data: Optional[str] = None
@@ -56,10 +58,14 @@ def read_root():
 # Set Prompt
 @app.post("/prompt")
 def set_prompt(item: PromptInput): # TODO: Test concurrency
-    global prompt, state, next_log_id
+    global prompt, model, state, next_log_id
     if state == 0:
+        if item.model not in ["SONNET_3_5", "SONNET_3_7"]:
+            return {"success": False, "error": "Invalid model type"}
+        
         state = 1
         prompt = item.prompt
+        model = item.model
         next_log_id += 1
         
         # Set up headless browser with Playwright
@@ -79,11 +85,11 @@ def set_prompt(item: PromptInput): # TODO: Test concurrency
 # Get Prompt
 @app.get("/prompt")
 def get_prompt(): # INTERNAL USE ONLY
-    global prompt, state, next_log_id
+    global prompt, model, state, next_log_id
     if state != 1:
         return {"success": False, "state": state}
     state = 2
-    resp = {"success": True, "prompt": prompt, "log_id": next_log_id}
+    resp = {"success": True, "prompt": prompt, "model": model, "log_id": next_log_id}
     return resp
 
 def _clear_tmp():
@@ -117,10 +123,11 @@ def add_log(item: LogInput): # INTERNAL USE ONLY
     return {"success": True}
 
 def _add_log(item: LogInput):
-    global state, prompt, logs, kill_signal
+    global state, prompt, model, logs, kill_signal
     if item.log_id not in logs:
         logs[item.log_id] = {
             "prompt": prompt,
+            "model": model,
             "completed": False,
             "killed": False,
             "chat": []
@@ -131,6 +138,7 @@ def _add_log(item: LogInput):
             logs[item.log_id]["killed"] = True
             kill_signal = False # Reset kill signal
         prompt = None
+        model = None
         state = 0
     else:
         logs[item.log_id]["chat"].append(json.loads(item.raw_data))
