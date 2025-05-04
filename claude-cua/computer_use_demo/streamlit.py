@@ -274,6 +274,7 @@ async def main():
         else:
             raise Exception(f"Invalid model {raw_fastapi_model}")
         logging.debug(f"OBTAINED fastapi_model {raw_fastapi_model}")
+        fastapi_custom_system_prompt = resp["custom_system_prompt"]
 
     with chat:
         # render past chats
@@ -325,7 +326,7 @@ async def main():
             # run the agent sampling loop with the newest message
             st.session_state.messages = await sampling_loop(
                 fastapi_log_id=fastapi_log_id, # NEW
-                system_prompt_suffix=st.session_state.custom_system_prompt,
+                custom_system_prompt=fastapi_custom_system_prompt, # NEW
                 model=fastapi_model, # NEW
                 provider=st.session_state.provider,
                 messages=st.session_state.messages,

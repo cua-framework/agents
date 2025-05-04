@@ -80,7 +80,7 @@ async def sampling_loop(
     fastapi_log_id: int, # NEW
     model: str,
     provider: APIProvider,
-    system_prompt_suffix: str,
+    custom_system_prompt: str, # NEW
     messages: list[BetaMessageParam],
     output_callback: Callable[[BetaContentBlockParam], None],
     tool_output_callback: Callable[[ToolResult, str], None],
@@ -101,7 +101,7 @@ async def sampling_loop(
     tool_collection = ToolCollection(*(ToolCls() for ToolCls in tool_group.tools))
     system = BetaTextBlockParam(
         type="text",
-        text=f"{SYSTEM_PROMPT}{' ' + system_prompt_suffix if system_prompt_suffix else ''}",
+        text=(custom_system_prompt if custom_system_prompt else SYSTEM_PROMPT), # NEW
     )
 
     while True:

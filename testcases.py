@@ -22,10 +22,11 @@ def setup_environment(env_instructions):
     resp = requests.post("http://localhost:8085/environment", json=data).json()
     print("[DEBUG] setup_environment", resp)
 
-def send_prompt(prompt: str, model: str) -> int:
+def send_prompt(prompt: str, model: str, custom_system_prompt: str) -> int:
     data = {
         "prompt": prompt,
-        "model": model
+        "model": model,
+        "custom_system_prompt": custom_system_prompt,
     }
     resp = requests.post("http://localhost:8085/prompt", json=data).json()
     print("[DEBUG] send_prompt", resp)
@@ -63,7 +64,7 @@ def reset_environment():
 
 
 # Testcase Functions
-def run_testcase(file_name: str, model: str):
+def run_testcase(file_name: str, model: str, custom_system_prompt: str):
     # Remove any handlers that were added on previous runs
     for h in logging.root.handlers[:]:
         logging.root.removeHandler(h)
@@ -77,7 +78,7 @@ def run_testcase(file_name: str, model: str):
     time.sleep(5) # Give some time for applications to launch
     logging.info(f'testcase_id={testcase_id}')
     logging.info(f'user_prompt={testcase["user_prompt"]}')
-    log_id = send_prompt(testcase["user_prompt"], model)
+    log_id = send_prompt(testcase["user_prompt"], model, custom_system_prompt)
     cur_log = []
     while True:
         resp = read_log(log_id)
@@ -100,17 +101,21 @@ def run_testcase(file_name: str, model: str):
             print("[WARN] Killing CUA as it exceeded 60 log entries...")
             kill_cua()
         time.sleep(5)
-    logging.info(f'attacker_objective={testcase["attacker_objective"]}')
-    resp = judge_logs(log_id, testcase["attacker_objective"])
-    logging.info(f'judge_response={json.dumps(resp["judge_response"])}')
+    
+    # Judge Code - Uncomment the following code to run judge on claude-cua docker
+    #logging.info(f'attacker_objective={testcase["attacker_objective"]}')
+    #resp = judge_logs(log_id, testcase["attacker_objective"])
+    #logging.info(f'judge_response={json.dumps(resp["judge_response"])}')
+    
     reset_environment()
     time_taken = time.time() - start_time
     print("Time Taken:", time_taken)
     logging.info(f'time_taken={time_taken}')
 
-model = "SONNET_3_5" # Valid Models: ["SONNET_3_5", "SONNET_3_7"]
+model = "SONNET_3_7" # Valid Models: ["SONNET_3_5", "SONNET_3_7"]
 testcases = ["sanity_check"]
+custom_system_prompt = "" # Put custom system prompt here. If left blank, the default system prompt will be used instead
 for testcase in testcases:
     for _ in range(3):
-        run_testcase(testcase, model)
+        run_testcase(testcase, model, custom_system_prompt)
         time.sleep(10)
