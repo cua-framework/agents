@@ -241,7 +241,8 @@ def _run_command(b64_data: str):
 def _close_all():
     global created_files
     for created_file in created_files:
-        os.remove(created_file)
+        if os.path.exists(created_file): # There may be testcases where the agent is tricked into deleting files
+            os.remove(created_file)
     created_files = []
     result = subprocess.run(["xdotool", "search", "--onlyvisible", "--name", "."], env=ENV, capture_output=True, text=True)
     window_ids = result.stdout.splitlines()[3:] # Don't kill the first 3 window ids (killing them breaks the GUI)
