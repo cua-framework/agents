@@ -3,8 +3,12 @@ import base64
 import requests
 import time
 import logging
+import os
 
 # API Functions
+
+BASE_URL = "http://localhost:8085" # "http://localhost:8086"
+TESTCASE_FOLDER_PATH = "testcases/testcases-computer"
 
 def load_testcase(path: str):
     with open(path, "r") as f:
@@ -19,7 +23,7 @@ def setup_environment(env_instructions):
     data = {
         "instructions": env_instructions
     }
-    resp = requests.post("http://localhost:8085/environment", json=data).json()
+    resp = requests.post(f"{BASE_URL}/environment", json=data).json()
     print("[DEBUG] setup_environment", resp)
 
 def send_prompt(prompt: str, model: str, custom_system_prompt: str) -> int:
@@ -28,17 +32,17 @@ def send_prompt(prompt: str, model: str, custom_system_prompt: str) -> int:
         "model": model,
         "custom_system_prompt": custom_system_prompt,
     }
-    resp = requests.post("http://localhost:8085/prompt", json=data).json()
+    resp = requests.post(f"{BASE_URL}/prompt", json=data).json()
     print("[DEBUG] send_prompt", resp)
     log_id = resp["log_id"]
     return log_id
 
 def read_log(log_id: int):
-    resp = requests.get(f"http://localhost:8085/logs?log_id={log_id}").json()
+    resp = requests.get(f"{BASE_URL}/logs?log_id={log_id}").json()
     return resp
 
 def kill_cua():
-    resp = requests.post("http://localhost:8085/kill").json()
+    resp = requests.post(f"{BASE_URL}/kill").json()
     print("[DEBUG] kill_cua", resp)
 
 def judge_logs(log_id: int, attacker_objective: str):
@@ -46,7 +50,7 @@ def judge_logs(log_id: int, attacker_objective: str):
         "log_id": log_id,
         "attacker_objective": attacker_objective
     }
-    resp = requests.post("http://localhost:8085/judge", json=data).json()
+    resp = requests.post(f"{BASE_URL}/judge", json=data).json()
     print("[DEBUG] judge_logs", resp)
     return resp
 
@@ -58,7 +62,7 @@ def reset_environment():
             }
         ]
     }
-    resp = requests.post("http://localhost:8085/environment", json=data).json()
+    resp = requests.post(f"{BASE_URL}/environment", json=data).json()
     print("[DEBUG] reset_environment", resp)
 
 
@@ -70,8 +74,8 @@ def run_testcase(file_name: str, model: str, custom_system_prompt: str):
         logging.root.removeHandler(h)
 
     start_time = time.time()
-    logging.basicConfig(level=logging.INFO, filename=f"logs/{file_name}-{int(time.time())}.log", filemode="w")
-    path = f"testcases/{file_name}.json"
+    logging.basicConfig(level=logging.INFO, filename=f"logs/{file_name}-{model}-{int(time.time())}.log", filemode="w")
+    path = f"{TESTCASE_FOLDER_PATH}/{file_name}.json"
     testcase = load_testcase(path)
     testcase_id = str(testcase["id"])
     setup_environment(testcase["environment"])
@@ -113,8 +117,10 @@ def run_testcase(file_name: str, model: str, custom_system_prompt: str):
     logging.info(f'time_taken={time_taken}')
 
 model = "SONNET_3_7" # Valid Models: ["SONNET_3_5", "SONNET_3_7"]
-testcases = ["sanity_check"]
+testcases = [f[:-5] for f in os.listdir(TESTCASE_FOLDER_PATH) if os.path.isfile(os.path.join(TESTCASE_FOLDER_PATH, f))] # ["sanity_check"]
 custom_system_prompt = "" # Put custom system prompt here. If left blank, the default system prompt will be used instead
+print(f"Loaded Testcases: {testcases}")
+
 for testcase in testcases:
     for _ in range(3):
         run_testcase(testcase, model, custom_system_prompt)
