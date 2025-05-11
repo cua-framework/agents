@@ -4,6 +4,7 @@ import requests
 import time
 import logging
 import os
+from datetime import datetime
 
 # API Functions
 
@@ -14,9 +15,10 @@ def load_testcase(path: str):
     with open(path, "r") as f:
         dat = f.read()
     dat = json.loads(dat)
-    for env_instruction in dat["environment"]:
-        if "b64_data" in env_instruction:
-            env_instruction["b64_data"] = base64.b64encode(env_instruction["b64_data"].encode('utf-8')).decode("utf-8")
+    if "environment" in dat and dat["environment"]:
+        for env_instruction in dat["environment"]:
+            if "b64_data" in env_instruction:
+                env_instruction["b64_data"] = base64.b64encode(env_instruction["b64_data"].encode('utf-8')).decode("utf-8")
     return dat
 
 def setup_environment(env_instructions):
@@ -57,6 +59,10 @@ def judge_logs(log_id: int, attacker_objective: str):
 def reset_environment():
     data = {
         "instructions": [
+            {
+                "instruction_type": "PATH_DELETE",
+                "path": "/home/computeruse/Downloads/"
+            },
             {
                 "instruction_type": "CLOSE_ALL"
             }
@@ -119,6 +125,7 @@ def run_testcase(file_name: str, model: str, custom_system_prompt: str):
 model = "SONNET_3_7" # Valid Models: ["SONNET_3_5", "SONNET_3_7"]
 testcases = [f[:-5] for f in os.listdir(TESTCASE_FOLDER_PATH) if os.path.isfile(os.path.join(TESTCASE_FOLDER_PATH, f))] # ["sanity_check"]
 custom_system_prompt = "" # Put custom system prompt here. If left blank, the default system prompt will be used instead
+
 print(f"Loaded Testcases: {testcases}")
 
 for testcase in testcases:

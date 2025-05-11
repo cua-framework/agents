@@ -221,12 +221,13 @@ def _file_create(path: str, b64_data: str):
 
 def _path_delete(path: str):
     path = Path(path)
+    if not path.exists():
+        # Do nothing if the path doesn't exist
+        return
     if path.is_file() or path.is_symlink():
         path.unlink()  # Deletes the file/symlink
     elif path.is_dir():
         shutil.rmtree(path)  # Deletes the directory and all its contents
-    else:
-        raise Exception(f"Path {path} can't be deleted as it doesn't exist")
 
 def _firefox_open(url: str):
     subprocess.Popen(["firefox-esr", url], env=ENV) # Launch Firefox asynchronously
