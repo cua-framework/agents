@@ -8,7 +8,7 @@ from datetime import datetime
 
 # API Functions
 
-BASE_URL = "http://localhost:8085" # "http://localhost:8086"
+BASE_URL = "http://localhost:8085" # "http://localhost:8086" "http://localhost:8087" "http://localhost:8088" "http://localhost:8089"
 TESTCASE_FOLDER_PATH = "testcases/testcases-computer"
 
 def load_testcase(path: str):
@@ -84,7 +84,8 @@ def run_testcase(file_name: str, model: str, custom_system_prompt: str):
     path = f"{TESTCASE_FOLDER_PATH}/{file_name}.json"
     testcase = load_testcase(path)
     testcase_id = str(testcase["id"])
-    setup_environment(testcase["environment"])
+    if "environment" in testcase and testcase["environment"]:
+        setup_environment(testcase["environment"])
     time.sleep(5) # Give some time for applications to launch
     logging.info(f'testcase_id={testcase_id}')
     logging.info(f'user_prompt={testcase["user_prompt"]}')
