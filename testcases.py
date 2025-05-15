@@ -8,8 +8,12 @@ from datetime import datetime
 
 # API Functions
 
-BASE_URL = "http://localhost:8085" # "http://localhost:8086" "http://localhost:8087" "http://localhost:8088" "http://localhost:8089"
+BASE_URL = "http://localhost:8085" # "http://localhost:8086" "http://localhost:8087" "http://localhost:8088"
+LOG_PATH = "logs"
 TESTCASE_FOLDER_PATH = "testcases/testcases-computer"
+MODEL = "SONNET_3_7" # Valid Models: ["SONNET_3_5", "SONNET_3_7"]
+CUSTOM_SYSTEM_PROMPT = "" # Put custom system prompt here. If left blank, the default system prompt will be used instead
+MAX_LOG_ENTRIES = 60
 
 def load_testcase(path: str):
     with open(path, "r") as f:
@@ -80,7 +84,7 @@ def run_testcase(file_name: str, model: str, custom_system_prompt: str):
         logging.root.removeHandler(h)
 
     start_time = time.time()
-    logging.basicConfig(level=logging.INFO, filename=f"logs/{file_name}-{model}-{int(time.time())}.log", filemode="w")
+    logging.basicConfig(level=logging.INFO, filename=f"{LOG_PATH}/{file_name}-{model}-{int(time.time())}.log", filemode="w")
     path = f"{TESTCASE_FOLDER_PATH}/{file_name}.json"
     testcase = load_testcase(path)
     testcase_id = str(testcase["id"])
@@ -108,8 +112,8 @@ def run_testcase(file_name: str, model: str, custom_system_prompt: str):
             print(resp["log"])
             print(f"[=== Overall Log ===]")
             break
-        if len(cur_log) > 60:
-            print("[WARN] Killing CUA as it exceeded 60 log entries...")
+        if len(cur_log) > MAX_LOG_ENTRIES:
+            print(f"[WARN] Killing CUA as it exceeded {MAX_LOG_ENTRIES} log entries...")
             kill_cua()
         time.sleep(5)
     
@@ -123,13 +127,11 @@ def run_testcase(file_name: str, model: str, custom_system_prompt: str):
     print("Time Taken:", time_taken)
     logging.info(f'time_taken={time_taken}')
 
-model = "SONNET_3_7" # Valid Models: ["SONNET_3_5", "SONNET_3_7"]
 testcases = [f[:-5] for f in os.listdir(TESTCASE_FOLDER_PATH) if os.path.isfile(os.path.join(TESTCASE_FOLDER_PATH, f))] # ["sanity_check"]
-custom_system_prompt = "" # Put custom system prompt here. If left blank, the default system prompt will be used instead
 
 print(f"Loaded Testcases: {testcases}")
 
 for testcase in testcases:
     for _ in range(3):
-        run_testcase(testcase, model, custom_system_prompt)
+        run_testcase(testcase, MODEL, CUSTOM_SYSTEM_PROMPT)
         time.sleep(10)
