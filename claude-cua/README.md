@@ -1,6 +1,6 @@
-### Setup
+# Setup
 
-# Worker 1
+## Worker 1
 
 ```bash
 ./setup.sh  # configure venv, install development dependencies, and install pre-commit hooks
@@ -18,7 +18,7 @@ docker run \
     -it claude-cua:local
 ```
 
-# Worker 2
+## Worker 2
 
 ```
 ./setup.sh  # configure venv, install development dependencies, and install pre-commit hooks
