@@ -8,6 +8,12 @@ Notably, we added a FastAPI server in the VM, and exposed it through an addition
 
 For Browser-Use Agents (BUAs), our source code is adapted from [Browser-Use/webui](https://github.com/browser-use/web-ui). We use version `v1.6` for this implementation. 
 
+# Demo Video
+
+[▶️ Watch the Demo](https://drive.google.com/file/d/1CIQijAI3dlmU5aiIH-ZZdWiWHJ5XnsD4/view?usp=sharing)
+
+The CUA in the demo video falls victim to a Visual Prompt Injection (VPI) attack, and is successfully tricked into finding the user's API key located in a local file on the computer, and subsequently exfiltrates this API key through a form on the pseudo-authentic webpage.
+
 # Installation Guide (CUA)
 
 Since we use 1 VM for each CUA, in order to run multiple CUAs in parallel, multiple VMs are needed (with different port settings). Please refer to [this](claude-cua/README.md) for more information on how to setup the VMs.
@@ -101,4 +107,4 @@ python browser-use/evaluate_webplatform.py
 
 # LLM Judge Evaluation & Results Calculation
 
-Please refer to [this](browser-use/README.md) for more information.
+Please refer to [this](browser-use/README.md#evaluation-using-llm-judge) for more information.
