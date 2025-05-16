@@ -1,5 +1,3 @@
-This source code is adapted from [Browser-Use/webui](https://github.com/browser-use/web-ui). We use version `v1.6` for this implementation. 
-
 ## Installation Guide
 
 Follow the steps below to get started.
@@ -51,23 +49,6 @@ cp .env.example .env
       CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
       CHROME_USER_DATA="/Users/YourUsername/Library/Application Support/Google/Chrome"
     ```
-###  Step 5: Google Drive setup
-Because our test cases trick the agent into retrieving data from Google Drive, please follow the steps below to set up Drive:
-#### Step 1:
-Create your new Google Drive Account on [Google Drive](https://drive.google.com/drive/my-drive)
-#### Step 2:
-Log in to the account using the Google Chrome browser.
-
-## Running experiment
-Before running, please specify the log storage path corresponding to the model name and determine whether to use the system prompt defense in `evaluation_me.py` and `evaluation_webplatform.py`.
-To run experiment on messenger and emai, please run:
-```bash
-python evaluate_me.py
-```
-To run experiment on Amazon, BBC, Booking, please run:
-```bash
-python evaluate_webplatform.py
-```
 
 ## Evaluation using LLM Judge
 To run LLM Judge, simply specify the model's log directory and the folder containing the test cases in `llms_judge.py`. Then run:
