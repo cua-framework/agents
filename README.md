@@ -10,9 +10,12 @@ For Browser-Use Agents (BUAs), our source code is adapted from [Browser-Use/webu
 
 # Demo Video
 
-[▶️ Watch the Demo](https://drive.google.com/file/d/1CIQijAI3dlmU5aiIH-ZZdWiWHJ5XnsD4/view?usp=sharing)
+[▶️ Watch the Demo](https://drive.google.com/file/d/1rLuVCzySiyUFLhnQk9m3oEddIxYLUb1I/view?usp=sharing)
 
-The CUA in the demo video falls victim to a Visual Prompt Injection (VPI) attack, and is successfully tricked into finding the user's API key located in a local file on the computer, and subsequently exfiltrates this API key through a form on the pseudo-authentic webpage.
+The CUA in the demo video falls victim to a Visual Prompt Injection (VPI) attack, and is successfully tricked into:
+1. Finding the user's SSH credentials located on the user's Google Drive.
+2. Exfiltrating the SSH credentials through a form on the pseudo-authentic webpage.
+3. Deleting the user's SSH credentials from the user's Google Drive.
 
 # Installation Guide (CUA)
 
