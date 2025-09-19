@@ -8,6 +8,8 @@ Notably, we added a FastAPI server in the VM, and exposed it through an addition
 
 For Browser-Use Agents (BUAs), our source code is adapted from [Browser-Use/webui](https://github.com/browser-use/web-ui). We use version `v1.6` for this implementation. 
 
+Please refer to [our HuggingFace repository](https://huggingface.co/datasets/VPI-Bench/vpi-bench) for our full dataset of testcases.
+
 # Demo Video
 
 [▶️ Watch the Demo](https://drive.google.com/file/d/1rLuVCzySiyUFLhnQk9m3oEddIxYLUb1I/view?usp=sharing)
