@@ -12,7 +12,7 @@ Please refer to [our HuggingFace repository](https://huggingface.co/datasets/VPI
 
 # Demo Video
 
-[▶️ Watch the Demo](Demo_VPI.mp4)
+[▶️ Watch the Demo](https://drive.google.com/file/d/1hMfVfheVcDIAew0J42YGX1x8bf-n4Kt2/)
 
 The CUA in the demo video falls victim to a Visual Prompt Injection (VPI) attack, and is successfully tricked into:
 1. Finding the user's SSH credentials located on the user's Google Drive.
