@@ -12,7 +12,7 @@ Please refer to [main_benchmark.parquet](main_benchmark.parquet) for our full da
 
 # Demo Video
 
-[▶️ Watch the Demo](https://anonymous.4open.science/api/repo/agents-1F4F/file/Demo_VPI.mp4?v=e90dcc6f)
+[▶️ Watch the Demo](./Demo_VPI.mp4)
 
 The CUA in the demo video falls victim to a Visual Prompt Injection (VPI) attack, and is successfully tricked into:
 1. Finding the user's SSH credentials located on the user's Google Drive.
