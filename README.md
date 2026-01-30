@@ -1,3 +1,12 @@
+# VPIBench
+
+This repository hosts the orchestration code for **VPIBench**, a benchmark created to systematically evaluate Visual Prompt Injection vulnerabilities in Computer-Use Agents.
+
+VPIBench was introduced in the following paper, which has been accepted to **ICLR 2026**:
+
+> *VPI-Bench: Visual Prompt Injection Attacks for Computer-Use Agents*  
+> https://arxiv.org/abs/2506.02456
+
 # Introduction
 
 For Computer-Use Agents (CUAs), as we are only using Anthropic's Sonnet 3.5 and Sonnet 3.7 models, we use a modified computer environment adapted from [Anthropic's Computer-Use QuickStart](https://github.com/anthropics/anthropic-quickstarts/tree/main/computer-use-demo).
